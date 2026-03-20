@@ -48,3 +48,9 @@
 (elpaca elpaca-use-package
   ;; Enable use-package :ensure support for Elpaca.
   (elpaca-use-package-mode))
+
+
+;; =====================================================================
+;; Remove frame title bar
+;; might want to put this somewhere else but its here for now
+(add-to-list 'default-frame-alist '(undecorated . t))
