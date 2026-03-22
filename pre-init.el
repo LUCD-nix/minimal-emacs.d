@@ -1,3 +1,4 @@
+;;; pre-init.el --- elpaca and no title pls -*- no-byte-compile: t; lexical-binding: t; -*-
 ;; =====================================================================
 ;; Elpaca bootstrap
 (defvar elpaca-installer-version 0.11)
