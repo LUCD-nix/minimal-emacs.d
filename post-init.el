@@ -197,7 +197,7 @@
   (setq history-length 300)
   (setq savehist-autosave-interval 600))
 
-;; save-place-mode enables Emacs to remember the last location within a file
+;; enables Emacs to remember the last location within a file
 ;; upon reopening. This feature is particularly beneficial for resuming work at
 ;; the precise point where you previously left off.
 (use-package saveplace
@@ -209,6 +209,13 @@
   (setq save-place-limit 400))
 
 ;;; Language specific :
+;; init 'treesit-language-source-alist
+(use-package emacs
+  :ensure nil
+  :config
+  (setopt major-mode-remap-alist '()
+          treesit-language-source-alist '()))
+
 ;;;; Elisp
 (use-package outline
   :ensure nil
@@ -228,19 +235,30 @@
 
 ;;;; C/C++
 ;; TODO : call to treesit-install-language-grammar a la mano at EOF?
-(add-to-list 'treesit-language-source-alist
-             '(c . ("https://github.com/tree-sitter/tree-sitter-c" "v0.24.1")))
-(add-to-list 'treesit-language-source-alist
-             '(cpp . ("https://github.com/tree-sitter/tree-sitter-cpp" "v0.23.4")))
+;; ^^^ implies checking if language .so's exist and finding a way to press confirm immediately
 
-;; TODO : configure eglot too
-(add-to-list 'major-mode-remap-alist '(c-mode . c-ts-mode))
-(add-to-list 'major-mode-remap-alist '(c++-mode . c++-ts-mode))
-(add-to-list 'major-mode-remap-alist
-             '(c-or-c++-mode . c-or-c++-ts-mode))
+(use-package emacs
+  :ensure nil
+  :hook
+    (c++-ts-mode . 42-indent-setup)
+    (c-ts-mode . 42-indent-setup)
+  :config
+    (defun 42-indent-setup ()
+      (setopt indent-tabs-mode t)
+      (setopt tab-width 4)
+      (setopt c-ts-mode-indent-offset 4))
 
-(add-to-list 'major-mode-remap-alist '(c-mode . c-ts-mode))
-(add-to-list 'major-mode-remap-alist '(c++-mode . c++-ts-mode))
-(add-to-list 'major-mode-remap-alist
-             '(c-or-c++-mode . c-or-c++-ts-mode))
-
+    ;; using git tags because emacs might break with newer grammars 
+    ;; source : https://github.com/doomemacs/doomemacs/blob/master/modules/lang/cc/config.el
+    (add-to-list 'treesit-language-source-alist
+                 '(c . ("https://github.com/tree-sitter/tree-sitter-c" "v0.24.1")))
+    (add-to-list 'treesit-language-source-alist
+                 '(cpp . ("https://github.com/tree-sitter/tree-sitter-cpp" "v0.23.4")))
+    ;; TODO : configure eglot too
+    ;; (add-to-list 'eglot-server-programs '((c-ts-mode c++-ts-mode) . ("clangd")))
+    (add-to-list 'major-mode-remap-alist '(c-mode . c-ts-mode))
+    (add-to-list 'major-mode-remap-alist '(c++-mode . c++-ts-mode))
+    ;; c-or-c++-ts-mode seems to be deprecated, maybe emacs calls the appropriate one from
+    ;; c-or-c++-mode but i am not taking the risk for now
+    (add-to-list 'major-mode-remap-alist
+                 '(c-or-c++-mode . c-or-c++-ts-mode)))
