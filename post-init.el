@@ -29,11 +29,7 @@
 
 ;;; Theme various
 ;; toggles line wrap and visual line navigation
-(visual-line-mode t)
-;; Display the current line and column numbers in the mode line
-(setq line-number-mode t)
-(setq column-number-mode t)
-(setq mode-line-position-column-line-format '("%l:%C"))
+(global-visual-line-mode 1)
 
 ;; Display of line numbers in the buffer:
 (setq-default display-line-numbers-type 'relative)
@@ -42,11 +38,28 @@
 
 (use-package kanagawa-themes
   :ensure t
-  :config (let ((inhibit-redisplay t))
+  :config
+  (let ((inhibit-redisplay t))
      ;; Disable all active themes
-     (mapc #'disable-theme custom-enabled-themes)
-     ;; Load the built-in theme
-     (load-theme 'kanagawa-lotus t)))
+    (mapc #'disable-theme custom-enabled-themes)
+    ;; Load the built-in theme
+    (load-theme 'kanagawa-lotus t)))
+
+(use-package mood-line
+  :config
+  (mood-line-mode)
+  ;; Use pretty Fira Code-compatible glyphs
+  :custom
+  (mood-line-glyph-alist mood-line-glyphs-fira-code))
+
+(use-package spacious-padding
+  :after  kanagawa-themes
+  :config
+  (spacious-padding-mode)
+  ;; The depths of hell i had to go through for this shit to work,
+  ;; don't touch this ever again, i don't know why there are 1500 ways to set faces in emacs
+  (set-face-attribute 'mode-line-active nil :background (face-background 'mode-line)))
+
 
 ;; Set the maximum level of syntax highlighting for Tree-sitter modes
 (setq treesit-font-lock-level 4)
@@ -208,13 +221,15 @@
   :init
   (setq save-place-limit 400))
 
-;;; Language specific :
-;; init 'treesit-language-source-alist
-(use-package emacs
-  :ensure nil
+;;; Programming :
+;; Bless github:renzmann for making this
+(use-package treesit-auto
+  :ensure t 
+  :custom
+  (treesit-auto-install 'prompt)
   :config
-  (setopt major-mode-remap-alist '()
-          treesit-language-source-alist '()))
+  (treesit-auto-add-to-auto-mode-alist 'all)
+  (global-treesit-auto-mode))
 
 ;;;; Elisp
 (use-package outline
@@ -229,36 +244,23 @@
     (lambda()
       (let* ((display-table (or buffer-display-table (make-display-table)))
              (face-offset (* (face-id 'shadow) (ash 1 22)))
-             (value (vconcat (mapcar (lambda (c) (+ face-offset c)) " ▼"))))
+             (value (vconcat (mapcar (lambda (c) (+ face-offset c)) "▼"))))
         (set-display-table-slot display-table 'selective-display value)
         (setq buffer-display-table display-table))))))
 
 ;;;; C/C++
-;; TODO : call to treesit-install-language-grammar a la mano at EOF?
-;; ^^^ implies checking if language .so's exist and finding a way to press confirm immediately
+(defun 42-indent-setup ()
+      (setq-local indent-tabs-mode t)
+      (setq-local tab-width 4)
+      (setq-local c-ts-mode-indent-offset 4)
+      (setq-local c-ts-common-indent-offset 4))
 
-(use-package emacs
+(use-package c-ts-mode
   :ensure nil
   :hook
-    (c++-ts-mode . 42-indent-setup)
-    (c-ts-mode . 42-indent-setup)
-  :config
-    (defun 42-indent-setup ()
-      (setopt indent-tabs-mode t)
-      (setopt tab-width 4)
-      (setopt c-ts-mode-indent-offset 4))
+  (c-ts-mode . 42-indent-setup))
 
-    ;; using git tags because emacs might break with newer grammars 
-    ;; source : https://github.com/doomemacs/doomemacs/blob/master/modules/lang/cc/config.el
-    (add-to-list 'treesit-language-source-alist
-                 '(c . ("https://github.com/tree-sitter/tree-sitter-c" "v0.24.1")))
-    (add-to-list 'treesit-language-source-alist
-                 '(cpp . ("https://github.com/tree-sitter/tree-sitter-cpp" "v0.23.4")))
-    ;; TODO : configure eglot too
-    ;; (add-to-list 'eglot-server-programs '((c-ts-mode c++-ts-mode) . ("clangd")))
-    (add-to-list 'major-mode-remap-alist '(c-mode . c-ts-mode))
-    (add-to-list 'major-mode-remap-alist '(c++-mode . c++-ts-mode))
-    ;; c-or-c++-ts-mode seems to be deprecated, maybe emacs calls the appropriate one from
-    ;; c-or-c++-mode but i am not taking the risk for now
-    (add-to-list 'major-mode-remap-alist
-                 '(c-or-c++-mode . c-or-c++-ts-mode)))
+(use-package c++-ts-mode
+  :ensure nil
+  :hook
+  (c++-ts-mode . 42-indent-setup))
