@@ -248,19 +248,29 @@
         (set-display-table-slot display-table 'selective-display value)
         (setq buffer-display-table display-table))))))
 
+;;;; GDB
+(use-package gdb-mi
+  :ensure nil
+  :defer t
+  :config
+  (gdb-many-windows)
+  (setq gdb-show-main t))
+
 ;;;; C/C++
 (defun 42-indent-setup ()
       (setq-local indent-tabs-mode t)
       (setq-local tab-width 4)
       (setq-local c-ts-mode-indent-offset 4)
-      (setq-local c-ts-common-indent-offset 4))
+      (setq-local c-ts-common-indent-offset 4)
+      (custom-set-variables '(c-ts-mode-indent-style 'bsd)))
 
 (use-package c-ts-mode
   :ensure nil
-  :hook
-  (c-ts-mode . 42-indent-setup))
+  ;; using hooks in reverse here, but hey, it works
+  :config
+  (42-indent-setup))
 
 (use-package c++-ts-mode
   :ensure nil
   :hook
-  (c++-ts-mode . 42-indent-setup))
+  (42-indent-setup))
