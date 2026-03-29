@@ -23,6 +23,21 @@
 ;; Allow Emacs to upgrade built-in packages, such as Org mode
 (setq package-install-upgrade-built-in t)
 
+;; TODO : find a way to add cc mode expansions to c*ts mode
+;; expand region
+(defun er/add-text-mode-expansions ()
+  (make-variable-buffer-local 'er/try-expand-list)
+  (setq er/try-expand-list (append
+                            er/try-expand-list
+                            '(mark-paragraph
+                              mark-page))))
+
+(use-package expand-region
+  :ensure t
+  :hook
+  (text-mode . er/add-text-mode-expansions)
+  :bind ("C-," . er/expand-region))
+
 ;; When Delete Selection mode is enabled, typed text replaces the selection
 ;; if the selection is active.
 (delete-selection-mode 1)
@@ -138,6 +153,126 @@
 
 ;; Configure Emacs to ask for confirmation before exiting
 (setq confirm-kill-emacs 'y-or-n-p)
+
+
+
+;;; Vertico/Marginalia/Consult stack
+;; Enable rich annotations using the Marginalia package
+(use-package marginalia
+  ;; Bind `marginalia-cycle' locally in the minibuffer.  To make the binding
+  ;; available in the *Completions* buffer, add it to the
+  ;; `completion-list-mode-map'.
+  :bind (:map minibuffer-local-map
+         ("M-A" . marginalia-cycle))
+  ;; The :init section is always executed.
+  :init
+  ;; Marginalia must be activated in the :init section of use-package such that
+  ;; the mode gets enabled right away. Note that this forces loading the
+  ;; package.
+  (marginalia-mode))
+
+;; Enable Vertico.
+;; Note that most of the little setting from https://github.com/minad/vertico
+;; are already configured by default by minimal-emacs, hence why they aren't
+;; here
+(use-panckage vertico
+  :custom
+  (vertico-resize t) ;; Grow and shrink the Vertico minibuffer
+  (vertico-cycle t) ;; Enable cycling for `vertico-next/previous'
+  :init
+  (vertico-mode))
+
+;; Orderless
+(use-package orderless
+  :custom
+  ;; Configure a custom style dispatcher (see the Consult wiki)
+  ;; (orderless-style-dispatchers '(+orderless-consult-dispatch orderless-affix-dispatch))
+  ;; (orderless-component-separator #'orderless-escapable-split-on-space)
+  (completion-styles '(orderless flex substring basic))
+  ;; prefer partial completion - that is wildcards - when searching for files
+  (completion-category-overrides '((file (styles partial-completion orderless flex substring basic))))
+  (completion-category-defaults nil) ;; Disable defaults, use our settings
+  (completion-pcm-leading-wildcard t)) ;; Emacs 31: partial-completion behaves like substring
+
+;; Example configuration for Consult, taken from: https://github.com/minad/consult
+;; I am far from using eveything here, consider narrowing down
+(use-package consult
+  ;; Replace bindings. Lazily loaded by `use-package'.
+  :bind (;; C-c bindings in `mode-specific-map'
+         ("C-c M-x" . consult-mode-command)
+         ("C-c h" . consult-history)
+         ("C-c k" . consult-kmacro)
+         ("C-c m" . consult-man)
+         ("C-c i" . consult-info)
+         ([remap Info-search] . consult-info)
+         ;; C-x bindings in `ctl-x-map'
+         ("C-x M-:" . consult-complex-command)     ;; orig. repeat-complex-command
+         ("C-x b" . consult-buffer)                ;; orig. switch-to-buffer
+         ("C-x 4 b" . consult-buffer-other-window) ;; orig. switch-to-buffer-other-window
+         ("C-x 5 b" . consult-buffer-other-frame)  ;; orig. switch-to-buffer-other-frame
+         ("C-x t b" . consult-buffer-other-tab)    ;; orig. switch-to-buffer-other-tab
+         ("C-x r b" . consult-bookmark)            ;; orig. bookmark-jump
+         ("C-x p b" . consult-project-buffer)      ;; orig. project-switch-to-buffer
+         ;; Custom M-# bindings for fast register access
+         ("M-#" . consult-register-load)
+         ("M-'" . consult-register-store)          ;; orig. abbrev-prefix-mark (unrelated)
+         ("C-M-#" . consult-register)
+         ;; Other custom bindings
+         ("M-y" . consult-yank-pop)                ;; orig. yank-pop
+         ;; M-g bindings in `goto-map'
+         ("M-g e" . consult-compile-error)
+         ("M-g r" . consult-grep-match)
+         ("M-g g" . consult-goto-line)             ;; orig. goto-line
+         ("M-g M-g" . consult-goto-line)           ;; orig. goto-line
+         ("M-g o" . consult-outline)               ;; Alternative: consult-org-heading
+         ("M-g m" . consult-mark)
+         ("M-g k" . consult-global-mark)
+         ("M-g i" . consult-imenu)
+         ("M-g I" . consult-imenu-multi)
+         ;; M-s bindings in `search-map'
+         ("M-s d" . consult-fd)                  ;; Alternative: consult-fd
+         ("M-s c" . consult-locate)
+         ("M-s g" . consult-ripgrep)
+         ("M-s l" . consult-line)
+         ("M-s L" . consult-line-multi)
+         ("M-s k" . consult-keep-lines)
+         ("M-s u" . consult-focus-lines)
+         ;; Isearch integration
+         ("M-s e" . consult-isearch-history)
+         :map isearch-mode-map
+         ("M-e" . consult-isearch-history)         ;; orig. isearch-edit-string
+         ("M-s e" . consult-isearch-history)       ;; orig. isearch-edit-string
+         ("M-s l" . consult-line)                  ;; needed by consult-line to detect isearch
+         ("M-s L" . consult-line-multi)            ;; needed by consult-line to detect isearch
+         ;; Minibuffer history
+         :map minibuffer-local-map
+         ("M-s" . consult-history)                 ;; orig. next-matching-history-element
+         ("M-r" . consult-history))                ;; orig. previous-matching-history-element
+
+  ;; The :init configuration is always executed (Not lazy)
+  :init
+
+  ;; Tweak the register preview for `consult-register-load',
+  ;; `consult-register-store' and the built-in commands.  This improves the
+  ;; register formatting, adds thin separator lines, register sorting and hides
+  ;; the window mode line.
+  (advice-add #'register-preview :override #'consult-register-window)
+  (setq register-preview-delay 0.5)
+
+  ;; Use Consult to select xref locations with preview
+  (setq xref-show-xrefs-function #'consult-xref
+        xref-show-definitions-function #'consult-xref)
+
+  ;; Configure other variables and modes in the :config section,
+  ;; after lazily loading the package.
+  :config
+
+  ;; Optionally configure the narrowing key.
+  ;; Both < and C-+ work reasonably well.
+  (setq consult-narrow-key "<")
+  )
+
+
 
 ;;; Start server on emacs start
 ;; Configure the built-in Emacs server to start after initialization,
