@@ -175,7 +175,7 @@
 ;; Note that most of the little setting from https://github.com/minad/vertico
 ;; are already configured by default by minimal-emacs, hence why they aren't
 ;; here
-(use-panckage vertico
+(use-package vertico
   :custom
   (vertico-resize t) ;; Grow and shrink the Vertico minibuffer
   (vertico-cycle t) ;; Enable cycling for `vertico-next/previous'
@@ -230,7 +230,7 @@
          ("M-g i" . consult-imenu)
          ("M-g I" . consult-imenu-multi)
          ;; M-s bindings in `search-map'
-         ("M-s d" . consult-fd)                  ;; Alternative: consult-fd
+         ("M-s d" . consult-fd)
          ("M-s c" . consult-locate)
          ("M-s g" . consult-ripgrep)
          ("M-s l" . consult-line)
@@ -251,6 +251,8 @@
 
   ;; The :init configuration is always executed (Not lazy)
   :init
+  ;; we might want to change this
+  (setq consult-preview-key 'any)
 
   ;; Tweak the register preview for `consult-register-load',
   ;; `consult-register-store' and the built-in commands.  This improves the
@@ -365,6 +367,15 @@
   :config
   (treesit-auto-add-to-auto-mode-alist 'all)
   (global-treesit-auto-mode))
+
+;;;; Magit
+;; the version of transient that's builtin is too old for magit
+;; :ensure t is not needed but best be clear about it
+(use-package transient
+  :ensure t)
+(use-package magit
+  :after transient
+  :ensure t)
 
 ;;;; Elisp
 (use-package outline
