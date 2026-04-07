@@ -1,5 +1,8 @@
 *
 !README.md
+!pre-early-init.el
+!pre-init.el
+!post-init.el
 !early-init.el
 !init.el
 !.github/
