@@ -38,6 +38,17 @@
   (text-mode . er/add-text-mode-expansions)
   :bind ("C-," . er/expand-region))
 
+;; some saner defaults for wgrep
+(use-package wgrep
+  :ensure t
+  :commands wgrep
+  :config
+  (setq wgrep-auto-save-buffer t)
+  (setq wgrep-change-readonly-file t)
+  :bind (:map grep-mode-map
+              ("e" . wgrep-change-to-wgrep-mode)
+              ("C-x C-q" . wgrep-change-to-wgrep-mode)))
+
 ;; When Delete Selection mode is enabled, typed text replaces the selection
 ;; if the selection is active.
 (delete-selection-mode 1)
