@@ -38,6 +38,13 @@
   (text-mode . er/add-text-mode-expansions)
   :bind ("C-," . er/expand-region))
 
+(use-package multiple-cursors
+  :bind
+  (("C-c u" . mc/edit-lines)
+   ("C->" . mc/mark-next-like-this)
+   ("C-<" . mc/mark-previous-like-this)
+   ("C-c C->" . mc/mark-all-like-this)))
+
 ;; some saner defaults for wgrep
 (use-package wgrep
   :ensure t
