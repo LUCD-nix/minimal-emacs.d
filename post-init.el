@@ -431,6 +431,22 @@
         (set-display-table-slot display-table 'selective-display value)
         (setq buffer-display-table display-table))))))
 
+;;;; Markdown (nowadays that counts as programming) (move somewhere else later)
+(use-package markdown-mode)
+
+;;;; gptel and gptel-agent
+(use-package gptel
+  :ensure t
+  :init
+  ;; ~/.authinfo is removed from the sources list by init.el in favour of
+  ;; ~/.authinfo.gpg only which makes a lot of sense but is more trouble
+  ;; than it is worth right now for a single gpt key
+  (setq auth-sources (list "~/.authinfo" "~/.authinfo.gpg" "~/.netrc"))
+  (setq gptel-api-key 'gptel-api-key-from-auth-source)
+  (setq gptel-include-reasoning 'ignore))
+
+(use-package gptel-agent)
+
 ;;;; GDB
 (use-package gdb-mi
   :ensure nil
