@@ -423,11 +423,12 @@
 ;;;; Paredit (possibly more than just elisp)
 (use-package paredit
   :hook
-  (emacs-lisp-mode  . enable-paredit-mode)
+  (emacs-lisp-mode . (lambda () (electric-indent-local-mode -1)
+                                  (electric-pair-local-mode -1)
+                                  (enable-paredit-mode)))
   :config
-  ;; makes these two redundant
-  (electric-indent-mode -1)
-  (electric-pair-mode -1))
+  (define-key paredit-mode-map (kbd "RET") 'paredit-newline)
+  (define-key paredit-mode-map (kbd "C-j") nil))
 
 ;;;; Elisp
 (use-package outline
