@@ -23,7 +23,6 @@
 ;; Allow Emacs to upgrade built-in packages, such as Org mode
 (setq package-install-upgrade-built-in t)
 
-;; TODO : find a way to add cc mode expansions to c*ts mode
 ;; expand region
 (defun er/add-text-mode-expansions ()
   (make-variable-buffer-local 'er/try-expand-list)
@@ -420,6 +419,15 @@
 (use-package magit
   :after transient
   :ensure t)
+
+;;;; Paredit (possibly more than just elisp)
+(use-package paredit
+  :hook
+  (emacs-lisp-mode  . enable-paredit-mode)
+  :config
+  ;; makes these two redundant
+  (electric-indent-mode -1)
+  (electric-pair-mode -1))
 
 ;;;; Elisp
 (use-package outline
