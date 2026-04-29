@@ -95,6 +95,7 @@
 
 ;; Set the maximum level of syntax highlighting for Tree-sitter modes
 (setq treesit-font-lock-level 4)
+(global-text-scale-adjust +1)
 
 (unless (and (eq window-system 'mac)
              (bound-and-true-p mac-carbon-version-string))
@@ -290,7 +291,7 @@
   ;; Both < and C-+ work reasonably well.
   (setq consult-narrow-key "<"))
 
-;; cape is mostly useful when we have a some specific functions we want to add
+;; cape is mostly useful when we have some specific functions we want to add
 ;; to a given mode. In the future it will be overridden in prog-mode to use
 ;; eglot's completions instead
 (use-package cape
@@ -477,15 +478,17 @@
       (setq-local tab-width 4)
       (setq-local c-ts-mode-indent-offset 4)
       (setq-local c-ts-common-indent-offset 4)
-      (custom-set-variables '(c-ts-mode-indent-style 'bsd)))
+      (custom-set-variables '(c-ts-mode-indent-style 'bsd))
+      (etags-regen-mode))
 
 (use-package c-ts-mode
   :ensure nil
   ;; using hooks in reverse here, but hey, it works
-  :config
-  (42-indent-setup))
+  :hook
+  (c-ts-mode . 42-indent-setup))
 
 (use-package c++-ts-mode
   :ensure nil
   :hook
-  (42-indent-setup))
+  (c++-ts-mode . 42-indent-setup))
+
