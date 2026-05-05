@@ -515,3 +515,14 @@
   :hook
   (c++-ts-mode . 42-indent-setup))
 
+;;; Org mode, :bind and C-a inspired by prelude emacs
+(use-package org
+  :ensure nil
+  :bind
+  ("C-c l" . org-store-link)
+  ("C-c a" . org-agenda)
+  ("C-c c" . org-capture)
+  ("C-c b" . org-switchb)
+  :config
+  (add-hook 'org-mode-hook (lambda () (org-indent-mode +1)))
+  (define-key org-mode-map (kbd "C-a") 'org-beginning-of-line))
