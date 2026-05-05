@@ -44,6 +44,29 @@
    ("C-<" . mc/mark-previous-like-this)
    ("C-c C->" . mc/mark-all-like-this)))
 
+(use-package embark
+  :ensure (:tag "1.2") ; this is because the head is expecting emacs 31, change later
+  :init
+  ;; makes it possible to search what comes after a prefix (try C-x C-h)
+  (setq prefix-help-command #'embark-prefix-help-command)
+  :bind
+  (("C-." . embark-act)
+   ("C-;" . embark-dwim) ; might also want M-. since it acts a bit like xref
+   ("C-h B" . embark-bindings)
+   (:map minibuffer-local-map
+         ("C-M-l" . embark-collect)
+         ("C-M-e" . embark-export)
+         ("C-SPC" . embark-select))))
+
+(use-package embark-consult
+  :ensure t
+  :after embark)
+
+(use-package embark-org
+  :ensure nil
+  :after embark)
+
+
 ;; some saner defaults for wgrep
 (use-package wgrep
   :ensure t
@@ -201,11 +224,11 @@
   (vertico-mode))
 
 ;; Orderless
+;; see variable `orderless-affix-dispatch-alist' for usage
+;; (most interesting is the suff/prefix `&' which searches for annotations
 (use-package orderless
   :custom
-  ;; Configure a custom style dispatcher (see the Consult wiki)
-  ;; (orderless-style-dispatchers '(+orderless-consult-dispatch orderless-affix-dispatch))
-  ;; (orderless-component-separator #'orderless-escapable-split-on-space)
+  (orderless-component-separator #'orderless-escapable-split-on-space)
   (completion-styles '(orderless flex substring basic))
   ;; prefer partial completion - that is wildcards - when searching for files
   (completion-category-overrides '((file (styles partial-completion orderless flex substring basic))))
