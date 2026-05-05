@@ -102,11 +102,12 @@
 
 (use-package spacious-padding
   :after  kanagawa-themes
+  ;; This does not survive a 'load-theme' for macro shenanigans reasons
+  ;; way better than what i had before, no touchy!
+  :custom-face
+  (mode-line-active ((t (:background ,(face-background 'mode-line)))))
   :config
-  (spacious-padding-mode)
-  ;; The depths of hell i had to go through for this shit to work,
-  ;; don't touch this ever again, i don't know why there are 1500 ways to set faces in emacs
-  (set-face-attribute 'mode-line-active nil :background (face-background 'mode-line)))
+  (spacious-padding-mode))
 
 (use-package emacs
   :ensure nil
@@ -303,6 +304,7 @@
   (setq register-preview-delay 0.5)
 
   ;; Use Consult to select xref locations with preview
+  ;; also works for project-grep etc.
   (setq xref-show-xrefs-function #'consult-xref
         xref-show-definitions-function #'consult-xref)
 
