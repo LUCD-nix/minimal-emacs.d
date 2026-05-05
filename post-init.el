@@ -83,13 +83,6 @@
 (delete-selection-mode 1)
 
 ;;; Theme various
-;; toggles line wrap and visual line navigation
-(global-visual-line-mode 1)
-
-;; Display of line numbers in the buffer:
-(setq-default display-line-numbers-type 'relative)
-(dolist (hook '(prog-mode-hook text-mode-hook conf-mode-hook))
-  (add-hook hook #'display-line-numbers-mode))
 
 (use-package kanagawa-themes
   :ensure t
@@ -115,27 +108,34 @@
   ;; don't touch this ever again, i don't know why there are 1500 ways to set faces in emacs
   (set-face-attribute 'mode-line-active nil :background (face-background 'mode-line)))
 
+(use-package emacs
+  :ensure nil
+  :config
+  ;; toggles line wrap and visual line navigation
+  (global-visual-line-mode 1)
 
-;; Set the maximum level of syntax highlighting for Tree-sitter modes
-(setq treesit-font-lock-level 4)
-(global-text-scale-adjust +1)
+  ;; Display of line numbers in the buffer:
+  (setq-default display-line-numbers-type 'relative)
+  (dolist (hook '(prog-mode-hook text-mode-hook conf-mode-hook))
+    (add-hook hook #'display-line-numbers-mode))
 
-(unless (and (eq window-system 'mac)
-             (bound-and-true-p mac-carbon-version-string))
-  ;; Enables `pixel-scroll-precision-mode' on all operating systems and Emacs
-  ;; versions, except for emacs-mac.
-  ;;
-  ;; Enabling `pixel-scroll-precision-mode' is unnecessary with emacs-mac, as
-  ;; this version of Emacs natively supports smooth scrolling.
-  ;; https://bitbucket.org/mituharu/emacs-mac/commits/65c6c96f27afa446df6f9d8eff63f9cc012cc738
-  (setq pixel-scroll-precision-use-momentum nil) ; Precise/smoother scrolling
-  (pixel-scroll-precision-mode 1))
+  ;; Set the maximum level of syntax highlighting for Tree-sitter modes
+  (setq treesit-font-lock-level 4)
 
-;; Paren match highlighting
-(add-hook 'after-init-hook #'show-paren-mode)
+  (global-text-scale-adjust +1)
 
-;; Display the time in the modeline
-(add-hook 'after-init-hook #'display-time-mode)
+  ;; enable pixel-scrolling (mac has it by default)
+  (unless (and (eq window-system 'mac)
+               (bound-and-true-p mac-carbon-version-string))
+    (setq pixel-scroll-precision-use-momentum nil)
+    (pixel-scroll-precision-mode 1))
+
+  ;; Paren match highlighting
+  (add-hook 'after-init-hook #'show-paren-mode)
+
+  ;; Display the time in the modeline
+  (setq display-time-24hr-format t)
+  (add-hook 'after-init-hook #'display-time-mode))
 
 ;;; which-key
 (use-package which-key
