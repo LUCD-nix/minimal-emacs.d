@@ -452,9 +452,15 @@
   (emacs-lisp-mode . (lambda () (electric-indent-local-mode -1)
                                   (electric-pair-local-mode -1)
                                   (enable-paredit-mode)))
-  :config
-  (define-key paredit-mode-map (kbd "RET") 'paredit-newline)
-  (define-key paredit-mode-map (kbd "C-j") nil))
+  :bind (:map paredit-mode-map
+              ;; make electric-like indent on RET
+              ("RET" . paredit-newline)
+              ("C-j" . nil)
+              ;; keep M-s for `search-mode-map'
+              ("M-s" . nil)
+              ("M-S" . nil)
+              ("M-n" . paredit-splice-sexp)
+              ("M-N" . paredit-split-sexp)))
 
 ;;;; Elisp
 (use-package outline
@@ -525,6 +531,11 @@
   ("C-c a" . org-agenda)
   ("C-c c" . org-capture)
   ("C-c b" . org-switchb)
+  ;; keep expand-region in org mode map
+  ;; `org-cycle-agenda-files' which was bound to C-,
+  ;; is also available on C-'
+  (:map org-mode-map
+        ("C-," . nil))
   :config
   (add-hook 'org-mode-hook (lambda () (org-indent-mode +1)))
   (define-key org-mode-map (kbd "C-a") 'org-beginning-of-line))
