@@ -23,6 +23,9 @@
 ;; Allow Emacs to upgrade built-in packages, such as Org mode
 (setq package-install-upgrade-built-in t)
 
+;; It seems this is needed
+(use-package compat)
+
 ;; expand region
 (defun er/add-text-mode-expansions ()
   (make-variable-buffer-local 'er/try-expand-list)
@@ -45,7 +48,7 @@
    ("C-c C->" . mc/mark-all-like-this)))
 
 (use-package embark
-  :ensure (:tag "1.2") ; this is because the head is expecting emacs 31, change later
+  :ensure
   :init
   ;; makes it possible to search what comes after a prefix (try C-x C-h)
   (setq prefix-help-command #'embark-prefix-help-command)
