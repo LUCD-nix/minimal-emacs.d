@@ -440,6 +440,18 @@
   (treesit-auto-add-to-auto-mode-alist 'all)
   (global-treesit-auto-mode))
 
+(use-package etags
+  :ensure nil
+  ;; universal-ctags needs to be compiled and installed separately
+  :config
+  (setq etags-program-name "uctags -e --recurse --map-javascript=+.jsx"))
+
+;; use an up-to-date tag program to navigate, who needs LSP?
+(use-package prog-mode
+  :ensure nil
+  :hook
+  (prog-mode . etags-regen-mode))
+
 ;;;; Magit
 ;; the version of transient that's builtin is too old for magit
 ;; :ensure t is not needed but best be clear about it
@@ -512,8 +524,7 @@
       (setq-local tab-width 4)
       (setq-local c-ts-mode-indent-offset 4)
       (setq-local c-ts-common-indent-offset 4)
-      (custom-set-variables '(c-ts-mode-indent-style 'bsd))
-      (etags-regen-mode))
+      (custom-set-variables '(c-ts-mode-indent-style 'bsd)))
 
 (use-package c-ts-mode
   :ensure nil
