@@ -94,7 +94,7 @@
      ;; Disable all active themes
     (mapc #'disable-theme custom-enabled-themes)
     ;; Load the built-in theme
-    (load-theme 'kanagawa-lotus t)))
+    (load-theme 'kanagawa-wave t)))
 
 (use-package mood-line
   :config
