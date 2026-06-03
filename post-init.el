@@ -537,6 +537,12 @@
   :hook
   (c++-ts-mode . 42-indent-setup))
 
+(use-package odin-ts-mode
+  :ensure (:host github :repo "Sampie159/odin-ts-mode")
+  ;; TODO : find way to install language grammar automatically
+  :mode
+  "\\.odin\\'")
+
 ;;; Org mode, :bind and C-a inspired by prelude emacs
 (use-package org
   :ensure nil
