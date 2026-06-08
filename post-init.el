@@ -117,6 +117,7 @@
   :config
   ;; toggles line wrap and visual line navigation
   (global-visual-line-mode 1)
+  (setq scroll-margin 10)
 
   ;; Display of line numbers in the buffer:
   (setq-default display-line-numbers-type 'relative)
@@ -126,7 +127,8 @@
   ;; Set the maximum level of syntax highlighting for Tree-sitter modes
   (setq treesit-font-lock-level 4)
 
-  (global-text-scale-adjust +1)
+  (set-face-attribute 'default nil :height 140 :width 'ultra-condensed :weight
+                      'normal :family "IosevkaTermSlab Nerd Font Mono")
 
   ;; enable pixel-scrolling (mac has it by default)
   (unless (and (eq window-system 'mac)
