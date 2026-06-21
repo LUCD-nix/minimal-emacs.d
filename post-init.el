@@ -86,7 +86,6 @@
 (delete-selection-mode 1)
 
 ;;; Theme various
-
 (use-package kanagawa-themes
   :ensure t
   :config
@@ -127,7 +126,7 @@
   ;; Set the maximum level of syntax highlighting for Tree-sitter modes
   (setq treesit-font-lock-level 4)
 
-  (set-face-attribute 'default nil :height 140 :width 'ultra-condensed :weight
+  (set-face-attribute 'default nil :height 150 :width 'ultra-condensed :weight
                       'normal :family "IosevkaTermSlab Nerd Font Mono")
 
   ;; enable pixel-scrolling (mac has it by default)
@@ -561,3 +560,71 @@
   :config
   (add-hook 'org-mode-hook (lambda () (org-indent-mode +1)))
   (define-key org-mode-map (kbd "C-a") 'org-beginning-of-line))
+
+;;; Mail setup
+;; very fragile for now, depends on the external mbsync and gnu-tls
+;; (and whatever encrypts your passwords)
+(use-package mu4e
+  :ensure nil                           ; comes with mu (AUR in this case)
+  :defer 20
+  :config
+  (setq mu4e-sent-folder   "/[Gmail]/Sent Mail"
+        mu4e-drafts-folder "/[Gmail]/Drafts"  
+        mu4e-trash-folder  "/[Gmail]/Bin"
+        mu4e-refile-folder "/Archive")
+  ;; setup some handy shortcuts
+  ;; you can quickly switch to your Inbox -- press ``ji''
+  ;; then, when you want archive some messages, move them to
+  ;; the 'All Mail' folder by pressing ``ma''.
+  (setq mu4e-maildir-shortcuts
+        '( (:maildir "/INBOX"              :key ?i)
+           (:maildir "/[Gmail]/Sent Mail"  :key ?s)
+           (:maildir "/[Gmail]/Trash"      :key ?t)
+           (:maildir "/[Gmail]/All Mail"   :key ?a)))
+
+  (add-to-list 'mu4e-bookmarks
+               ;; ':favorite t' i.e, use this one for the modeline
+               '(:query "maildir:/INBOX" :name "Inbox" :key ?i :favorite t))
+
+  ;; allow for updating mail using 'U' in the main view:
+  (setq mu4e-get-mail-command "mbsync gmail")
+
+  ;; something about ourselves
+  (setq
+   user-mail-address "lucascordu@gmail.com"
+   user-full-name  "Lucas Correia Dupuy"
+   message-signature
+   "Lucas Correia Dupuy\n")
+
+  ;; sending mail -- replace USERNAME with your gmail username
+  ;; also, make sure the gnutls command line utils are installed
+  ;; package 'gnutls-bin' in Debian/Ubuntu
+  (require 'smtpmail)
+  (setq message-send-mail-function 'smtpmail-send-it
+        starttls-use-gnutls t
+        smtpmail-starttls-credentials '(("smtp.gmail.com" 587 nil nil))
+        smtpmail-auth-credentials
+        '(("smtp.gmail.com" 587 "lucascordu@gmail.com" nil))
+        smtpmail-default-smtp-server "smtp.gmail.com"
+        smtpmail-smtp-server "smtp.gmail.com"
+        smtpmail-smtp-service 587)
+
+  ;; don't keep message buffers around
+  (setq message-kill-buffer-on-exit t)
+  
+  ;; prefer plain text
+  (with-eval-after-load "mm-decode"
+    (add-to-list 'mm-discouraged-alternatives "text/html")
+    (add-to-list 'mm-discouraged-alternatives "text/richtext"))
+
+  ;; the default one with from/to instead of From
+  (setq mu4e-headers-fields '((:human-date . 12) (:flags . 6) (:mailing-list . 10) (:from-or-to . 22) (:subject)))
+  
+  ;; fix mu4e/mbsync desync
+  (setq mu4e-change-filenames-when-moving t)
+
+  ;; sync with Gmail every 5 minutes (only when running)
+  (setq mu4e-update-interval 300)
+  
+  ;; start mu4e in the background
+  (mu4e 1))
