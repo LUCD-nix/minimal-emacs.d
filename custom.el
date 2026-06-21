@@ -13,4 +13,8 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(message-header-name ((t (:foreground "salmon")))))
+ '(gnus-header-content ((t (:inherit gnus-header :foreground "gray" :slant italic))))
+ '(gnus-header-from ((t (:inherit gnus-header :foreground "dark gray"))))
+ '(gnus-header-name ((t (:inherit gnus-header :foreground "dim gray"))))
+ '(message-header-name ((t (:foreground "salmon"))))
+ '(variable-pitch-text ((t (:inherit variable-pitch :height 0.8)))))
