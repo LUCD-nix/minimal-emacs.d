@@ -1,10 +1,96 @@
 ;;; post-init.el --- most packages go here  -*- lexical-binding: t; -*-
 
+;;; Custom file
+;; This is already set in early-init.el
+;; (setq custom-file "~/.config/emacs/custom.el")
+(load custom-file 'noerror 'nomessage)
+
+;;; No dir-locals.el
+(setq enable-dir-local-variables nil)
+
+
+;;; Electric pair mode
+;; Enable automatic insertion and management of matching pairs of characters
+;; (e.g., (), {}, "") globally using `electric-pair-mode'.
+(use-package elec-pair
+  :ensure nil
+  :commands (electric-pair-mode
+             electric-pair-local-mode
+             electric-pair-delete-pair)
+  :hook (after-init . electric-pair-mode))
+
+;;; Misc
+;; Allow Emacs to upgrade built-in packages, such as Org mode
+(setq package-install-upgrade-built-in t)
+
+;; It seems this is needed
+(use-package compat)
+
+;; expand region
+(defun er/add-text-mode-expansions ()
+  (make-variable-buffer-local 'er/try-expand-list)
+  (setq er/try-expand-list (append
+                            er/try-expand-list
+                            '(mark-paragraph
+                              mark-page))))
+
+(use-package expand-region
+  :ensure t
+  :hook
+  (text-mode . er/add-text-mode-expansions)
+  :bind ("C-," . er/expand-region))
+
+(use-package multiple-cursors
+  :bind
+  (("C-c u" . mc/edit-lines)
+   ("C->" . mc/mark-next-like-this)
+   ("C-<" . mc/mark-previous-like-this)
+   ("C-c C->" . mc/mark-all-like-this)))
+
+(use-package embark
+  :ensure
+  :init
+  ;; makes it possible to search what comes after a prefix (try C-x C-h)
+  (setq prefix-help-command #'embark-prefix-help-command)
+  :bind
+  (("C-." . embark-act)
+   ("C-;" . embark-dwim) ; might also want M-. since it acts a bit like xref
+   ("C-h B" . embark-bindings)
+   (:map minibuffer-local-map
+         ("C-M-l" . embark-collect)
+         ("C-M-e" . embark-export)
+         ("C-SPC" . embark-select))))
+
+(use-package embark-consult
+  :ensure t
+  :after embark)
+
+(use-package embark-org
+  :ensure nil
+  :after embark)
+
+
+;; some saner defaults for wgrep
+(use-package wgrep
+  :ensure t
+  :commands wgrep
+  :config
+  (setq wgrep-auto-save-buffer t)
+  (setq wgrep-change-readonly-file t)
+  :bind (:map grep-mode-map
+              ("e" . wgrep-change-to-wgrep-mode)
+              ("C-x C-q" . wgrep-change-to-wgrep-mode)))
+
+;; When Delete Selection mode is enabled, typed text replaces the selection
+;; if the selection is active.
+(delete-selection-mode 1)
+
+;;; Theme various
 (use-package kanagawa-themes
   :ensure t
   :config
   (let ((inhibit-redisplay t))
-    ;; Disable all active themes
+     ;; Disable all active themes
     (mapc #'disable-theme custom-enabled-themes)
     ;; Load the built-in theme
     (load-theme 'kanagawa-wave t)))
@@ -30,8 +116,6 @@
   :config
   ;; toggles line wrap and visual line navigation
   (global-visual-line-mode 1)
-
-  ;; Personal preference
   (setq scroll-margin 10)
 
   ;; Display of line numbers in the buffer:
@@ -53,19 +137,90 @@
 
   ;; Paren match highlighting
   (add-hook 'after-init-hook #'show-paren-mode)
+
   ;; Display the time in the modeline
   (setq display-time-24hr-format t)
   (add-hook 'after-init-hook #'display-time-mode))
 
+;;; which-key
+(use-package which-key
+  :ensure nil ; builtin
+  :commands which-key-mode
+  :hook (after-init . which-key-mode)
+  :custom
+  (which-key-idle-delay 1.0)
+  (which-key-idle-secondary-delay 0.25)
+  (which-key-add-column-padding 1)
+  (which-key-max-description-length 40))
+
+;;; Winner and window dividers
+;; Track changes in the window configuration, allowing undoing actions such as
+;; closing windows.
+(setq winner-boring-buffers '("*Completions*"
+                                "*Minibuf-0*"
+                                "*Minibuf-1*"
+                                "*Minibuf-2*"
+                                "*Minibuf-3*"
+                                "*Minibuf-4*"
+                                "*Compile-Log*"
+                                "*inferior-lisp*"
+                                "*Fuzzy Completions*"
+                                "*Apropos*"
+                                "*Help*"
+                                "*cvs*"
+                                "*Buffer List*"
+                                "*Ibuffer*"
+                                "*esh command on file*"))
+(add-hook 'after-init-hook #'winner-mode)
+
+;; Window dividers separate windows visually. Window dividers are bars that can
+;; be dragged with the mouse, thus allowing you to easily resize adjacent
+;; windows.
+;; https://www.gnu.org/software/emacs/manual/html_node/emacs/Window-Dividers.html
+(add-hook 'after-init-hook #'window-divider-mode)
+
+;;; Dired stuff
+;; Constrain vertical cursor movement to lines within the buffer
+(setq dired-movement-style 'bounded-files)
+
+;; dired: Group directories first
+(with-eval-after-load 'dired
+  (let ((args "--group-directories-first -ahlv"))
+    (when (or (eq system-type 'darwin) (eq system-type 'berkeley-unix))
+      (if-let* ((gls (executable-find "gls")))
+          (setq insert-directory-program gls)
+        (setq args nil)))
+    (when args
+      (setq dired-listing-switches args))))
+
+;;; Some minibuffer config
+;; Enables visual indication of minibuffer recursion depth after initialization.
+(add-hook 'after-init-hook #'minibuffer-depth-indicate-mode)
+
+;; Configure Emacs to ask for confirmation before exiting
+(setq confirm-kill-emacs 'y-or-n-p)
+
+
+
+;;; Vertico/Marginalia/Consult stack
+;; Enable rich annotations using the Marginalia package
 (use-package marginalia
+  ;; Bind `marginalia-cycle' locally in the minibuffer.  To make the binding
+  ;; available in the *Completions* buffer, add it to the
+  ;; `completion-list-mode-map'.
   :bind (:map minibuffer-local-map
          ("M-A" . marginalia-cycle))
+  ;; The :init section is always executed.
   :init
   ;; Marginalia must be activated in the :init section of use-package such that
   ;; the mode gets enabled right away. Note that this forces loading the
   ;; package.
   (marginalia-mode))
 
+;; Enable Vertico.
+;; Note that most of the little setting from https://github.com/minad/vertico
+;; are already configured by default by minimal-emacs, hence why they aren't
+;; here
 (use-package vertico
   :custom
   (vertico-resize t) ;; Grow and shrink the Vertico minibuffer
@@ -73,6 +228,9 @@
   :init
   (vertico-mode))
 
+;; Orderless
+;; see variable `orderless-affix-dispatch-alist' for usage
+;; (most interesting is the suff/prefix `&' which searches for annotations
 (use-package orderless
   :custom
   (orderless-component-separator #'orderless-escapable-split-on-space)
@@ -82,6 +240,8 @@
   (completion-category-defaults nil) ;; Disable defaults, use our settings
   (completion-pcm-leading-wildcard t)) ;; Emacs 31: partial-completion behaves like substring
 
+;; Example configuration for Consult, taken from: https://github.com/minad/consult
+;; I am far from using eveything here, consider narrowing down
 (use-package consult
   ;; Replace bindings. Lazily loaded by `use-package'.
   :bind (;; C-c bindings in `mode-specific-map'
@@ -160,6 +320,9 @@
   ;; Both < and C-+ work reasonably well.
   (setq consult-narrow-key "<"))
 
+;; cape is mostly useful when we have some specific functions we want to add
+;; to a given mode. In the future it will be overridden in prog-mode to use
+;; eglot's completions instead
 (use-package cape
   :bind ("M-p" . cape-prefix-map)
   :init
@@ -185,80 +348,42 @@
   (corfu-history-mode)
   (corfu-popupinfo-mode))
 
-(use-package embark
-  :ensure
-  :init
-  ;; makes it possible to search what comes after a prefix (try C-x C-h)
-  (setq prefix-help-command #'embark-prefix-help-command)
-  :bind
-  (("C-." . embark-act)
-   ("C-;" . embark-dwim) ; might also want M-. since it acts a bit like xref
-   ("C-h B" . embark-bindings)
-   (:map minibuffer-local-map
-         ("C-M-l" . embark-collect)
-         ("C-M-e" . embark-export)
-         ("C-SPC" . embark-select))))
 
-(use-package embark-consult
-  :ensure t
-  :after embark)
-
-(use-package embark-org
+;;; Start server on emacs start
+;; Configure the built-in Emacs server to start after initialization,
+;; allowing the use of the emacsclient command to open files in the
+;; current session.
+(use-package server
   :ensure nil
-  :after embark)
-
-(defun er/add-text-mode-expansions ()
-  (make-variable-buffer-local 'er/try-expand-list)
-  (setq er/try-expand-list (append
-                            er/try-expand-list
-                            '(mark-paragraph
-                              mark-page))))
-
-(use-package expand-region
-  :ensure t
+  :commands server-start
   :hook
-  (text-mode . er/add-text-mode-expansions)
-  :bind ("C-," . er/expand-region))
+  (after-init . server-start))
 
-(use-package multiple-cursors
-  :bind
-  (("C-c u" . mc/edit-lines)
-   ("C->" . mc/mark-next-like-this)
-   ("C-<" . mc/mark-previous-like-this)
-   ("C-c C->" . mc/mark-all-like-this)))
-
-(use-package wgrep
-  :ensure t
-  :commands wgrep
-  :config
-  (setq wgrep-auto-save-buffer t)
-  (setq wgrep-change-readonly-file t)
-  :bind (:map grep-mode-map
-              ("e" . wgrep-change-to-wgrep-mode)
-              ("C-x C-q" . wgrep-change-to-wgrep-mode)))
-
-(use-package elec-pair
-  :ensure nil
-  :commands (electric-pair-mode
-             electric-pair-local-mode
-             electric-pair-delete-pair)
-  :hook (after-init . electric-pair-mode))
-
-(use-package which-key
-  :ensure nil ; builtin
-  :commands which-key-mode
-  :hook (after-init . which-key-mode)
-  :custom
-  (which-key-idle-delay 1.0)
-  (which-key-idle-secondary-delay 0.25)
-  (which-key-add-column-padding 1)
-  (which-key-max-description-length 40))
-
+;;; Backups, reading modified files to buffers (autorevert)
+;; Enabled backups save your changes to a file intermittently
 (setq make-backup-files t)
 (setq vc-make-backup-files t)
 (setq kept-old-versions 10)
 (setq kept-new-versions 10)
 
+;; Auto-revert is a feature that automatically updates the
+;; contents of a buffer to reflect changes made to the underlying file
+;; on disk.
+(use-package autorevert
+  :ensure nil
+  :commands (auto-revert-mode global-auto-revert-mode)
+  :hook
+  (after-init . global-auto-revert-mode)
+  :init
+  ;; (setq auto-revert-verbose t)
+  (setq auto-revert-interval 3)
+  (setq auto-revert-remote-files nil)
+  (setq auto-revert-use-notify t)
+  (setq auto-revert-avoid-polling nil))
+
+;; Recentf is a package that maintains a list of recently
+;; accessed files, making it easier to reopen files you have worked on
+;; recently.
 (use-package recentf
   :ensure nil
   :commands (recentf-mode recentf-cleanup)
@@ -282,6 +407,10 @@
   ;; `kill-emacs-hook' by `recentf-mode'.
   (add-hook 'kill-emacs-hook #'recentf-cleanup -90))
 
+;; savehist is a feature that preserves the minibuffer history between
+;; sessions. It saves the history of inputs in the minibuffer, such as commands,
+;; search strings, and other prompts, to a file. This allows users to retain
+;; their minibuffer history across Emacs restarts.
 (use-package savehist
   :ensure nil
   :commands (savehist-mode savehist-save)
@@ -291,6 +420,9 @@
   (setq history-length 300)
   (setq savehist-autosave-interval 600))
 
+;; enables Emacs to remember the last location within a file
+;; upon reopening. This feature is particularly beneficial for resuming work at
+;; the precise point where you previously left off.
 (use-package saveplace
   :ensure nil
   :commands (save-place-mode save-place-local-mode)
@@ -299,73 +431,8 @@
   :init
   (setq save-place-limit 400))
 
-(use-package autorevert
-  :ensure nil
-  :commands (auto-revert-mode global-auto-revert-mode)
-  :hook
-  (after-init . global-auto-revert-mode)
-  :init
-  ;; (setq auto-revert-verbose t)
-  (setq auto-revert-interval 3)
-  (setq auto-revert-remote-files nil)
-  (setq auto-revert-use-notify t)
-  (setq auto-revert-avoid-polling nil))
-
-(setq winner-boring-buffers '("*Completions*"
-                              "*Minibuf-0*"
-                              "*Minibuf-1*"
-                              "*Minibuf-2*"
-                              "*Minibuf-3*"
-                              "*Minibuf-4*"
-                              "*Compile-Log*"
-                              "*inferior-lisp*"
-                              "*Fuzzy Completions*"
-                              "*Apropos*"
-                              "*Help*"
-                              "*cvs*"
-                              "*Buffer List*"
-                              "*Ibuffer*"
-                              "*esh command on file*"))
-(add-hook 'after-init-hook #'winner-mode)
-
-(use-package server
-  :ensure nil
-  :commands server-start
-  :hook
-  (after-init . server-start))
-
-(delete-selection-mode 1)
-
-(setq enable-dir-local-variables nil)
-
-(use-package compat)
-
-(add-hook 'after-init-hook #'minibuffer-depth-indicate-mode)
-
-(setq confirm-kill-emacs 'y-or-n-p)
-
-;; Constrain vertical cursor movement to lines within the buffer
-(use-package dired
-  :ensure nil
-  :config
-  (setq dired-movement-style 'bounded-files)
-  ;; dired: Group directories first
-  (let ((args "--group-directories-first -ahlv"))
-    (when (or (eq system-type 'darwin) (eq system-type 'berkeley-unix))
-      (if-let* ((gls (executable-find "gls")))
-          (setq insert-directory-program gls)
-        (setq args nil)))
-    (when args
-      (setq dired-listing-switches args))))
-
-(use-package etags
-  :ensure nil
-  ;; universal-ctags needs to be compiled and installed separately
-  :config
-  (setq etags-program-name "uctags -e --recurse --map-javascript=+.jsx")
-  :hook
-  (prog-mode . etags-regen-mode))
-
+;;; Programming :
+;; Bless github:renzmann for making this
 (use-package treesit-auto
   :ensure t 
   :custom
@@ -374,6 +441,19 @@
   (treesit-auto-add-to-auto-mode-alist 'all)
   (global-treesit-auto-mode))
 
+(use-package etags
+  :ensure nil
+  ;; universal-ctags needs to be compiled and installed separately
+  :config
+  (setq etags-program-name "uctags -e --recurse --map-javascript=+.jsx"))
+
+;; use an up-to-date tag program to navigate, who needs LSP?
+(use-package prog-mode
+  :ensure nil
+  :hook
+  (prog-mode . etags-regen-mode))
+
+;;;; Magit
 ;; the version of transient that's builtin is too old for magit
 ;; :ensure t is not needed but best be clear about it
 (use-package transient
@@ -382,11 +462,12 @@
   :after transient
   :ensure t)
 
+;;;; Paredit (possibly more than just elisp)
 (use-package paredit
   :hook
   (emacs-lisp-mode . (lambda () (electric-indent-local-mode -1)
-                       (electric-pair-local-mode -1)
-                       (enable-paredit-mode)))
+                                  (electric-pair-local-mode -1)
+                                  (enable-paredit-mode)))
   :bind (:map paredit-mode-map
               ;; make electric-like indent on RET
               ("RET" . paredit-newline)
@@ -430,6 +511,7 @@
 
 (use-package gptel-agent)
 
+;;;; GDB
 (use-package gdb-mi
   :ensure nil
   :defer t
@@ -439,11 +521,11 @@
 
 ;;;; C/C++
 (defun 42-indent-setup ()
-  (setq-local indent-tabs-mode t)
-  (setq-local tab-width 4)
-  (setq-local c-ts-mode-indent-offset 4)
-  (setq-local c-ts-common-indent-offset 4)
-  (custom-set-variables '(c-ts-mode-indent-style 'bsd)))
+      (setq-local indent-tabs-mode t)
+      (setq-local tab-width 4)
+      (setq-local c-ts-mode-indent-offset 4)
+      (setq-local c-ts-common-indent-offset 4)
+      (custom-set-variables '(c-ts-mode-indent-style 'bsd)))
 
 (use-package c-ts-mode
   :ensure nil
@@ -477,9 +559,11 @@
         ("C-," . nil))
   :config
   (add-hook 'org-mode-hook (lambda () (org-indent-mode +1)))
-  (define-key org-mode-map (kbd "C-a") 'org-beginning-of-line)
-  (require 'org-tempo))
+  (define-key org-mode-map (kbd "C-a") 'org-beginning-of-line))
 
+;;; Mail setup
+;; very fragile for now, depends on the external mbsync and gnu-tls
+;; (and whatever encrypts your passwords)
 (use-package mu4e
   :ensure nil                           ; comes with mu (AUR in this case)
   :defer 20
@@ -495,7 +579,7 @@
   (setq mu4e-maildir-shortcuts
         '( (:maildir "/INBOX"              :key ?i)
            (:maildir "/[Gmail]/Sent Mail"  :key ?s)
-           (:maildir "/[Gmail]/Bin"      :key ?t)
+           (:maildir "/[Gmail]/Trash"      :key ?t)
            (:maildir "/[Gmail]/All Mail"   :key ?a)))
 
   (add-to-list 'mu4e-bookmarks
@@ -527,7 +611,7 @@
 
   ;; don't keep message buffers around
   (setq message-kill-buffer-on-exit t)
-
+  
   ;; prefer plain text
   (with-eval-after-load "mm-decode"
     (add-to-list 'mm-discouraged-alternatives "text/html")
@@ -535,42 +619,12 @@
 
   ;; the default one with from/to instead of From
   (setq mu4e-headers-fields '((:human-date . 12) (:flags . 6) (:mailing-list . 10) (:from-or-to . 22) (:subject)))
-
+  
   ;; fix mu4e/mbsync desync
   (setq mu4e-change-filenames-when-moving t)
 
   ;; sync with Gmail every 5 minutes (only when running)
   (setq mu4e-update-interval 300)
-
-  ;; make mu4e the default for mail things
-  (setq mail-user-agent 'mu4e-user-agent)
-  (set-variable 'read-mail-command 'mu4e)
-
-  ;; header view
-  (setq mu4e-headers-draft-mark     '("D" . "")
-        mu4e-headers-flagged-mark   '("F" . "")
-        mu4e-headers-new-mark       '("N" . "")
-        mu4e-headers-passed-mark    '("P" . "󰄾")
-        mu4e-headers-replied-mark   '("R" . "󰼠")
-        mu4e-headers-seen-mark      '("S" . "☑")
-        mu4e-headers-trashed-mark   '("T" . "󰩺")
-        mu4e-headers-attach-mark    '("a" . "")
-        mu4e-headers-encrypted-mark '("x" . "")
-        mu4e-headers-signed-mark    '("s" . "")
-        mu4e-headers-unread-mark    '("u" . "")
-        mu4e-headers-list-mark      '("l" . "")
-        mu4e-headers-personal-mark  '("p" . "")
-        mu4e-headers-calendar-mark  '("c" . "")
-
-        mu4e-modeline-unread-items  '("U" . "")
-        mu4e-modeline-all-read      '("R" . "☑")
-        mu4e-modeline-new-items     '("N" . "")
-        mu4e-modeline-all-clear     '("C" . " ")
-        mu4e-use-fancy-chars t)
-
+  
   ;; start mu4e in the background
   (mu4e 1))
-
-;; This is already set in early-init.el
-;; (setq custom-file "~/.config/emacs/custom.el")
-(load custom-file 'noerror 'nomessage)

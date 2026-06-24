@@ -50,4 +50,10 @@
   ;; Enable use-package :ensure support for Elpaca.
   (elpaca-use-package-mode))
 
+
+;; =====================================================================
+;; Remove frame title bar
+;; might want to put this somewhere else but its here for now.
+;; For some reason, C-x 5 2 (make-frame-command) does not respect this
+;; might be due to Cosmic shenanigans
 (add-to-list 'default-frame-alist '(undecorated . t))
