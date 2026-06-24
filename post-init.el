@@ -475,7 +475,12 @@
   ;; is also available on C-'
   (:map org-mode-map
         ("C-," . nil))
+  :init
+  ;; lets us tangle this file on save
+  (add-to-list 'safe-local-eval-forms
+               '(add-hook 'after-save-hook #'org-babel-tangle t t))
   :config
+  (add-hook 'org-mode-hook (lambda () (setq enable-local-eval 1)))
   (add-hook 'org-mode-hook (lambda () (org-indent-mode +1)))
   (define-key org-mode-map (kbd "C-a") 'org-beginning-of-line)
   (require 'org-tempo))

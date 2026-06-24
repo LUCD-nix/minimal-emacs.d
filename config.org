@@ -708,12 +708,18 @@ Indent setup for 42 schools, I've kinda grown to like it
     ;; is also available on C-'
     (:map org-mode-map
           ("C-," . nil))
+    :init
+    ;; lets us tangle this file on save
+    (add-to-list 'safe-local-eval-forms
+                 '(add-hook 'after-save-hook #'org-babel-tangle t t))
     :config
+    (add-hook 'org-mode-hook (lambda () (setq enable-local-eval 1)))
     (add-hook 'org-mode-hook (lambda () (org-indent-mode +1)))
     (define-key org-mode-map (kbd "C-a") 'org-beginning-of-line)
     (require 'org-tempo))
 #+end_src
-** TODO setup capture templates
+
+* TODO setup capture templates
 + [ ] email
 + [ ] contact
 + [ ] tasks
@@ -827,3 +833,7 @@ I should probably split this code block into various parts but i dont think it's
   ;; (setq custom-file "~/.config/emacs/custom.el")
   (load custom-file 'noerror 'nomessage)
 #+end_src
+
+# Local Variables:
+# eval: (add-hook 'after-save-hook #'org-babel-tangle t t)
+# End:
