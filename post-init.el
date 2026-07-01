@@ -483,7 +483,11 @@
   (add-hook 'org-mode-hook (lambda () (setq enable-local-eval 1)))
   (add-hook 'org-mode-hook (lambda () (org-indent-mode +1)))
   (define-key org-mode-map (kbd "C-a") 'org-beginning-of-line)
-  (require 'org-tempo))
+  (require 'org-tempo)
+  ;; Specifying mode-line here because face-background returns nil
+  ;; on unspecified
+  (set-face-background
+   'org-block (face-background 'mode-line)))
 
 (use-package mu4e
   :ensure nil                           ; comes with mu (AUR in this case)

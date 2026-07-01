@@ -716,9 +716,12 @@ Indent setup for 42 schools, I've kinda grown to like it
     (add-hook 'org-mode-hook (lambda () (setq enable-local-eval 1)))
     (add-hook 'org-mode-hook (lambda () (org-indent-mode +1)))
     (define-key org-mode-map (kbd "C-a") 'org-beginning-of-line)
-    (require 'org-tempo))
+    (require 'org-tempo)
+    ;; Specifying mode-line here because face-background returns nil
+    ;; on unspecified
+    (set-face-background
+     'org-block (face-background 'mode-line)))
 #+end_src
-
 * TODO setup capture templates
 + [ ] email
 + [ ] contact
