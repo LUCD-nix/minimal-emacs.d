@@ -192,7 +192,7 @@
   (setq prefix-help-command #'embark-prefix-help-command)
   :bind
   (("C-." . embark-act)
-   ("C-;" . embark-dwim) ; might also want M-. since it acts a bit like xref
+   ("M-." . embark-dwim)
    ("C-h B" . embark-bindings)
    (:map minibuffer-local-map
          ("C-M-l" . embark-collect)
