@@ -693,6 +693,14 @@ Indent setup for 42 schools, I've kinda grown to like it
     :mode
     "\\.odin\\'")
 #+end_src
+** TODO Vue
+This is temporary to work with ft_transcendence
+#+begin_src emacs-lisp :tangle post-init.el
+  (use-package mhtml-mode
+    :ensure nil
+    :init
+    (add-to-list 'auto-mode-alist '("\\.vue\\'" . mhtml-mode)))
+#+end_src
 * ORG MODE
 #+begin_src emacs-lisp :tangle post-init.el
   ;;; Org mode, :bind and C-a inspired by prelude emacs
