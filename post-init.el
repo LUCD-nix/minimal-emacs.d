@@ -489,96 +489,96 @@
   (set-face-background
    'org-block (face-background 'mode-line)))
 
-(use-package mu4e
-  :ensure nil                           ; comes with mu (AUR in this case)
-  :defer 20
-  :config
-  (setq mu4e-sent-folder   "/[Gmail]/Sent Mail"
-        mu4e-drafts-folder "/[Gmail]/Drafts"  
-        mu4e-trash-folder  "/[Gmail]/Bin"
-        mu4e-refile-folder "/Archive")
-  ;; setup some handy shortcuts
-  ;; you can quickly switch to your Inbox -- press ``ji''
-  ;; then, when you want archive some messages, move them to
-  ;; the 'All Mail' folder by pressing ``ma''.
-  (setq mu4e-maildir-shortcuts
-        '( (:maildir "/INBOX"              :key ?i)
-           (:maildir "/[Gmail]/Sent Mail"  :key ?s)
-           (:maildir "/[Gmail]/Bin"      :key ?t)
-           (:maildir "/[Gmail]/All Mail"   :key ?a)))
+;; (use-package mu4e
+;;   :ensure nil                           ; comes with mu (AUR in this case)
+;;   :defer 20
+;;   :config
+;;   (setq mu4e-sent-folder   "/[Gmail]/Sent Mail"
+;;         mu4e-drafts-folder "/[Gmail]/Drafts"  
+;;         mu4e-trash-folder  "/[Gmail]/Bin"
+;;         mu4e-refile-folder "/Archive")
+;;   ;; setup some handy shortcuts
+;;   ;; you can quickly switch to your Inbox -- press ``ji''
+;;   ;; then, when you want archive some messages, move them to
+;;   ;; the 'All Mail' folder by pressing ``ma''.
+;;   (setq mu4e-maildir-shortcuts
+;;         '( (:maildir "/INBOX"              :key ?i)
+;;            (:maildir "/[Gmail]/Sent Mail"  :key ?s)
+;;            (:maildir "/[Gmail]/Bin"      :key ?t)
+;;            (:maildir "/[Gmail]/All Mail"   :key ?a)))
 
-  (add-to-list 'mu4e-bookmarks
-               ;; ':favorite t' i.e, use this one for the modeline
-               '(:query "maildir:/INBOX" :name "Inbox" :key ?i :favorite t))
+;;   (add-to-list 'mu4e-bookmarks
+;;                ;; ':favorite t' i.e, use this one for the modeline
+;;                '(:query "maildir:/INBOX" :name "Inbox" :key ?i :favorite t))
 
-  ;; allow for updating mail using 'U' in the main view:
-  (setq mu4e-get-mail-command "mbsync gmail")
+;;   ;; allow for updating mail using 'U' in the main view:
+;;   (setq mu4e-get-mail-command "mbsync gmail")
 
-  ;; something about ourselves
-  (setq
-   user-mail-address "lucascordu@gmail.com"
-   user-full-name  "Lucas Correia Dupuy"
-   message-signature
-   "Lucas Correia Dupuy\n")
+;;   ;; something about ourselves
+;;   (setq
+;;    user-mail-address "lucascordu@gmail.com"
+;;    user-full-name  "Lucas Correia Dupuy"
+;;    message-signature
+;;    "Lucas Correia Dupuy\n")
 
-  ;; sending mail -- replace USERNAME with your gmail username
-  ;; also, make sure the gnutls command line utils are installed
-  ;; package 'gnutls-bin' in Debian/Ubuntu
-  (require 'smtpmail)
-  (setq message-send-mail-function 'smtpmail-send-it
-        starttls-use-gnutls t
-        smtpmail-starttls-credentials '(("smtp.gmail.com" 587 nil nil))
-        smtpmail-auth-credentials
-        '(("smtp.gmail.com" 587 "lucascordu@gmail.com" nil))
-        smtpmail-default-smtp-server "smtp.gmail.com"
-        smtpmail-smtp-server "smtp.gmail.com"
-        smtpmail-smtp-service 587)
+;;   ;; sending mail -- replace USERNAME with your gmail username
+;;   ;; also, make sure the gnutls command line utils are installed
+;;   ;; package 'gnutls-bin' in Debian/Ubuntu
+;;   (require 'smtpmail)
+;;   (setq message-send-mail-function 'smtpmail-send-it
+;;         starttls-use-gnutls t
+;;         smtpmail-starttls-credentials '(("smtp.gmail.com" 587 nil nil))
+;;         smtpmail-auth-credentials
+;;         '(("smtp.gmail.com" 587 "lucascordu@gmail.com" nil))
+;;         smtpmail-default-smtp-server "smtp.gmail.com"
+;;         smtpmail-smtp-server "smtp.gmail.com"
+;;         smtpmail-smtp-service 587)
 
-  ;; don't keep message buffers around
-  (setq message-kill-buffer-on-exit t)
+;;   ;; don't keep message buffers around
+;;   (setq message-kill-buffer-on-exit t)
 
-  ;; prefer plain text
-  (with-eval-after-load "mm-decode"
-    (add-to-list 'mm-discouraged-alternatives "text/html")
-    (add-to-list 'mm-discouraged-alternatives "text/richtext"))
+;;   ;; prefer plain text
+;;   (with-eval-after-load "mm-decode"
+;;     (add-to-list 'mm-discouraged-alternatives "text/html")
+;;     (add-to-list 'mm-discouraged-alternatives "text/richtext"))
 
-  ;; the default one with from/to instead of From
-  (setq mu4e-headers-fields '((:human-date . 12) (:flags . 6) (:mailing-list . 10) (:from-or-to . 22) (:subject)))
+;;   ;; the default one with from/to instead of From
+;;   (setq mu4e-headers-fields '((:human-date . 12) (:flags . 6) (:mailing-list . 10) (:from-or-to . 22) (:subject)))
 
-  ;; fix mu4e/mbsync desync
-  (setq mu4e-change-filenames-when-moving t)
+;;   ;; fix mu4e/mbsync desync
+;;   (setq mu4e-change-filenames-when-moving t)
 
-  ;; sync with Gmail every 5 minutes (only when running)
-  (setq mu4e-update-interval 300)
+;;   ;; sync with Gmail every 5 minutes (only when running)
+;;   (setq mu4e-update-interval 300)
 
-  ;; make mu4e the default for mail things
-  (setq mail-user-agent 'mu4e-user-agent)
-  (set-variable 'read-mail-command 'mu4e)
+;;   ;; make mu4e the default for mail things
+;;   (setq mail-user-agent 'mu4e-user-agent)
+;;   (set-variable 'read-mail-command 'mu4e)
 
-  ;; header view
-  (setq mu4e-headers-draft-mark     '("D" . "")
-        mu4e-headers-flagged-mark   '("F" . "")
-        mu4e-headers-new-mark       '("N" . "")
-        mu4e-headers-passed-mark    '("P" . "󰄾")
-        mu4e-headers-replied-mark   '("R" . "󰼠")
-        mu4e-headers-seen-mark      '("S" . "☑")
-        mu4e-headers-trashed-mark   '("T" . "󰩺")
-        mu4e-headers-attach-mark    '("a" . "")
-        mu4e-headers-encrypted-mark '("x" . "")
-        mu4e-headers-signed-mark    '("s" . "")
-        mu4e-headers-unread-mark    '("u" . "")
-        mu4e-headers-list-mark      '("l" . "")
-        mu4e-headers-personal-mark  '("p" . "")
-        mu4e-headers-calendar-mark  '("c" . "")
+;;   ;; header view
+;;   (setq mu4e-headers-draft-mark     '("D" . "")
+;;         mu4e-headers-flagged-mark   '("F" . "")
+;;         mu4e-headers-new-mark       '("N" . "")
+;;         mu4e-headers-passed-mark    '("P" . "󰄾")
+;;         mu4e-headers-replied-mark   '("R" . "󰼠")
+;;         mu4e-headers-seen-mark      '("S" . "☑")
+;;         mu4e-headers-trashed-mark   '("T" . "󰩺")
+;;         mu4e-headers-attach-mark    '("a" . "")
+;;         mu4e-headers-encrypted-mark '("x" . "")
+;;         mu4e-headers-signed-mark    '("s" . "")
+;;         mu4e-headers-unread-mark    '("u" . "")
+;;         mu4e-headers-list-mark      '("l" . "")
+;;         mu4e-headers-personal-mark  '("p" . "")
+;;         mu4e-headers-calendar-mark  '("c" . "")
 
-        mu4e-modeline-unread-items  '("U" . "")
-        mu4e-modeline-all-read      '("R" . "☑")
-        mu4e-modeline-new-items     '("N" . "")
-        mu4e-modeline-all-clear     '("C" . " ")
-        mu4e-use-fancy-chars t)
+;;         mu4e-modeline-unread-items  '("U" . "")
+;;         mu4e-modeline-all-read      '("R" . "☑")
+;;         mu4e-modeline-new-items     '("N" . "")
+;;         mu4e-modeline-all-clear     '("C" . " ")
+;;         mu4e-use-fancy-chars t)
 
-  ;; start mu4e in the background
-  (mu4e 1))
+;;   ;; start mu4e in the background
+;;   (mu4e 1))
 
 ;; This is already set in early-init.el
 ;; (setq custom-file "~/.config/emacs/custom.el")
