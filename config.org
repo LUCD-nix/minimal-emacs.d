@@ -701,6 +701,12 @@ This is temporary to work with ft_transcendence
     :init
     (add-to-list 'auto-mode-alist '("\\.vue\\'" . mhtml-mode)))
 #+end_src
+** TODO Docker
+- [ ] learn to use it properly
+#+begin_src emacs-lisp :tangle post-init.el
+    (use-package docker
+      :bind ("C-c d" . docker))
+#+end_src
 * ORG MODE
 #+begin_src emacs-lisp :tangle post-init.el
   ;;; Org mode, :bind and C-a inspired by prelude emacs

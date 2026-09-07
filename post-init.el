@@ -466,6 +466,10 @@
   :ensure nil
   :init
   (add-to-list 'auto-mode-alist '("\\.vue\\'" . mhtml-mode)))
+
+(use-package docker
+  :bind ("C-c d" . docker))
+
 ;;; Org mode, :bind and C-a inspired by prelude emacs
 (use-package org
   :ensure nil
