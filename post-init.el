@@ -344,6 +344,8 @@
 
 (setq confirm-kill-emacs 'y-or-n-p)
 
+(global-set-key (kbd "C-x k") #'kill-current-buffer)
+
 ;; Constrain vertical cursor movement to lines within the buffer
 (use-package dired
   :ensure nil

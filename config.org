@@ -538,6 +538,11 @@ Behave more like "modern" text editors, inserting text deletes the selection
 #+begin_src emacs-lisp :tangle post-init.el
   (setq confirm-kill-emacs 'y-or-n-p)
 #+end_src
+*** TODO Kill current buffer by default
+- [ ] Add the option (maybe on C-u) to select another buffer to kill.
+#+begin_src emacs-lisp :tangle post-init.el
+(global-set-key (kbd "C-x k") #'kill-current-buffer)
+#+end_src
 * Dired
 #+begin_src emacs-lisp :tangle post-init.el
   ;; Constrain vertical cursor movement to lines within the buffer
