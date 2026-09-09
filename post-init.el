@@ -364,7 +364,7 @@
   :ensure nil
   ;; universal-ctags needs to be compiled and installed separately
   :config
-  (setq etags-program-name "uctags -e --recurse --map-javascript=+.jsx")
+  (setq etags-program-name "ctags-universal -e --recurse --map-javascript=+.jsx")
   :hook
   (prog-mode . etags-regen-mode))
 
