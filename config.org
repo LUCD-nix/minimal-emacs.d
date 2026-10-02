@@ -1,3 +1,9 @@
+* Overview
+The goal of this config is for me to learn modern emacs keybinds and configuration, be fast, and look good doing it.
+- The speed is thanks to minimal-emacs.d, which we are based on. It also cleans up the emacs frame, making it pretty minimal, as
+  the name implies.
+- The looks are provided by Prot's spacious padding mode, and "mood-line", while their interplay is not perfect, the end result is fairly minimal configuration and a clean look similar to /N A N O/ emacs.
+- =expand-region='s default support for the various =treesiter= modes is what makes coding a joy in this configuration, and emacs's 31's automatic installation of grammars will make it even better. I don't miss LSP.
 * Minimal emacs
 - =minimal-emacs.d= is a "distribution" of emacs on top of which this config is rebased every once in a while.
 - It is *NOT* customised through the classics [[early-init.el]] [[init.el]], which are left to the distribution's author but instead through adjacent files =pre/post-[early-]init.el= that are loaded as you would expect.
