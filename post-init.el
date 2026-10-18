@@ -43,7 +43,7 @@
   (setq treesit-font-lock-level 4)
 
   (set-face-attribute 'default nil :height 150 :width 'ultra-condensed :weight
-                      'normal :family "IosevkaTermSlab Nerd Font Mono")
+                      'normal :family "Iosevka Slab")
 
   ;; enable pixel-scrolling (mac has it by default)
   (unless (and (eq window-system 'mac)
