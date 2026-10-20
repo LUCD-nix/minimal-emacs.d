@@ -67,9 +67,7 @@ The goal of this config is for me to learn modern emacs keybinds and configurati
     (elpaca-use-package-mode))
 #+end_src
 ** Ciao, package.el
- By default, minimal-emacs-package-initialize-and-refresh is set to t, which
- makes minimal-emacs.d call the built-in package manager. Since Elpaca will
- replace the package manager, there is no need to call it.
+ By default, minimal-emacs-package-initialize-and-refresh is set to t, which makes minimal-emacs.d call the built-in package manager. Since Elpaca will replace the package manager, there is no need to call it.
 #+begin_src emacs-lisp :tangle pre-early-init.el :comment no
 ;;; pre-early-init.el --- very early setup -*- no-byte-compile: t; lexical-binding: t; -*-
 
@@ -291,9 +289,7 @@ Probably requires fixing
 #+end_src
 ** Cape
 Additional completions inside buffers, order matters!
-cape is mostly useful when we have some specific functions we want to add
-to a given mode. In the future it will be overridden in prog-mode to use
-eglot's completions instead
+cape is mostly useful when we have some specific functions we want to add to a given mode. In the future it will be overridden in prog-mode to use eglot's completions instead
 #+begin_src emacs-lisp :tangle post-init.el
   (use-package cape
     :bind ("M-p" . cape-prefix-map)
@@ -305,9 +301,7 @@ eglot's completions instead
     (add-hook 'completion-at-point-functions #'cape-history))
 #+end_src
 ** Corfu
-Have in-buffer completion in a floating window like in most IDEs 
-=TAB= is the entrypoint for anything completions in emacs but I also have =cape= on =M-p=
-Press =M-<SPC>= while completing to match various completions as you would in the minibuffer.
+Have in-buffer completion in a floating window like in most IDEs =TAB= is the entrypoint for anything completions in emacs but I also have =cape= on =M-p= Press =M-<SPC>= while completing to match various completions as you would in the minibuffer.
 #+begin_src emacs-lisp :tangle post-init.el
   (use-package corfu
     ;; Optional customizations
