@@ -364,7 +364,19 @@
   :ensure nil
   ;; universal-ctags needs to be compiled and installed separately
   :config
-  (setq etags-program-name "ctags-universal -e --recurse --map-javascript=+.jsx")
+  (setq etags-program-name "ctags -e"))
+
+(use-package etags-regen
+  :ensure nil
+  :config
+  (setq etags-regen-program "ctags -e")
+  ;; either we add file extensions when we add a new
+  ;; language, which is not often, or we find a way
+  ;; to do it automagically with ctags-uni --list-languages and sed or some shit
+  (add-to-list 'etags-regen-file-extensions "ts")
+  (add-to-list 'etags-regen-file-extensions "vue")
+  (add-to-list 'etags-regen-file-extensions "js")
+
   :hook
   (prog-mode . etags-regen-mode))
 
