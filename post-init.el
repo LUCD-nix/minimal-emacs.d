@@ -186,7 +186,6 @@
   (corfu-popupinfo-mode))
 
 (use-package embark
-  :ensure
   :init
   ;; makes it possible to search what comes after a prefix (try C-x C-h)
   (setq prefix-help-command #'embark-prefix-help-command)
@@ -197,6 +196,7 @@
    (:map minibuffer-local-map
          ("C-M-l" . embark-collect)
          ("C-M-e" . embark-export)
+         ("C-M-b" . embark-become)
          ("C-SPC" . embark-select))))
 
 (use-package embark-consult

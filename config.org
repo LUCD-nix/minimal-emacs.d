@@ -327,26 +327,26 @@ A package far too powerful that i don't use enough.
 Embark-org is builtin to embark.
 #+begin_src emacs-lisp :tangle post-init.el
   (use-package embark
-  :ensure
-  :init
-  ;; makes it possible to search what comes after a prefix (try C-x C-h)
-  (setq prefix-help-command #'embark-prefix-help-command)
-  :bind
-  (("C-." . embark-act)
-   ("M-." . embark-dwim)
-   ("C-h B" . embark-bindings)
-   (:map minibuffer-local-map
-         ("C-M-l" . embark-collect)
-         ("C-M-e" . embark-export)
-         ("C-SPC" . embark-select))))
+    :init
+    ;; makes it possible to search what comes after a prefix (try C-x C-h)
+    (setq prefix-help-command #'embark-prefix-help-command)
+    :bind
+    (("C-." . embark-act)
+     ("M-." . embark-dwim)
+     ("C-h B" . embark-bindings)
+     (:map minibuffer-local-map
+           ("C-M-l" . embark-collect)
+           ("C-M-e" . embark-export)
+           ("C-M-b" . embark-become)
+           ("C-SPC" . embark-select))))
 
-(use-package embark-consult
-  :ensure t
-  :after embark)
+  (use-package embark-consult
+    :ensure t
+    :after embark)
 
-(use-package embark-org
-  :ensure nil
-  :after embark)
+  (use-package embark-org
+    :ensure nil
+    :after embark)
 #+end_src
 * Editing goodies
 ** Expand region and multiple cursors
