@@ -396,6 +396,29 @@
   :after transient
   :ensure t)
 
+(use-package ediff
+  :ensure nil
+  :config
+  ;; Show only A B C, press / to also have ancestor
+  (setq ediff-show-ancestor nil)
+  ;; This is hidden in init.el, best be explicit about it
+  (setq ediff-window-setup-function 'ediff-setup-windows-plain
+        ediff-split-window-function 'split-window-horizontally)
+  ;; Source -
+  ;; https://stackoverflow.com/a/29757750
+  ;; Posted by killdash9, modified by
+  ;; community. See post 'Timeline' for
+  ;; change history Retrieved
+  ;; 2026-10-24, License - CC BY-SA 3.0
+  (defun ediff-copy-both-to-C ()
+    (interactive)
+    (ediff-copy-diff ediff-current-difference nil 'C nil
+                     (concat
+                      (ediff-get-region-contents ediff-current-difference 'A ediff-control-buffer)
+                      (ediff-get-region-contents ediff-current-difference 'B ediff-control-buffer))))
+  (defun add-d-to-ediff-mode-map () (define-key ediff-mode-map "B" 'ediff-copy-both-to-C))
+  (add-hook 'ediff-keymap-setup-hook 'add-d-to-ediff-mode-map))
+
 (use-package paredit
   :hook
   (emacs-lisp-mode . (lambda () (electric-indent-local-mode -1)
