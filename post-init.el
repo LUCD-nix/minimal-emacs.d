@@ -137,6 +137,7 @@
 
   ;; The :init configuration is always executed (Not lazy)
   :init
+  (setq consult-locate-args "locate -i")
   ;; we might want to change this
   (setq consult-preview-key 'any)
 
